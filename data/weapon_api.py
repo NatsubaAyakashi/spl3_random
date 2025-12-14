@@ -4,6 +4,7 @@ from typing import List, Dict, Optional
 
 class WeaponDataParams:
     API_URL = "https://stat.ink/api/v3/weapon"
+    USER_AGENT = "Spl3RandomBot/1.0"
 
 class WeaponDataManager:
     def __init__(self):
@@ -14,7 +15,8 @@ class WeaponDataManager:
         if self._cache:
             return
 
-        async with aiohttp.ClientSession() as session:
+        headers = {"User-Agent": WeaponDataParams.USER_AGENT}
+        async with aiohttp.ClientSession(headers=headers) as session:
             try:
                 async with session.get(WeaponDataParams.API_URL) as response:
                     if response.status == 200:
@@ -28,13 +30,16 @@ class WeaponDataManager:
 
     async def fetch_image_data(self, url: str) -> Optional[bytes]:
         """URLから画像データを取得します"""
-        async with aiohttp.ClientSession() as session:
+        headers = {"User-Agent": WeaponDataParams.USER_AGENT}
+        async with aiohttp.ClientSession(headers=headers) as session:
             try:
                 async with session.get(url) as response:
                     if response.status == 200:
                         return await response.read()
-            except:
-                pass
+                    else:
+                        print(f"Failed to fetch image: {response.status} - {url}")
+            except Exception as e:
+                print(f"Error fetching image: {e}")
         return None
 
     def get_random_weapon(self, weapon_type: Optional[str] = None, sub: Optional[str] = None, special: Optional[str] = None) -> Optional[Dict]:
