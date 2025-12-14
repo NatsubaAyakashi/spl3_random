@@ -1,0 +1,77 @@
+import aiohttp
+import random
+from typing import List, Dict, Optional
+
+class WeaponDataParams:
+    API_URL = "https://stat.ink/api/v3/weapon"
+
+class WeaponDataManager:
+    def __init__(self):
+        self._cache: List[Dict] = []
+
+    async def fetch_weapons(self) -> None:
+        """APIからブキデータを取得してキャッシュします"""
+        if self._cache:
+            return
+
+        async with aiohttp.ClientSession() as session:
+            try:
+                async with session.get(WeaponDataParams.API_URL) as response:
+                    if response.status == 200:
+                        self._cache = await response.json()
+                    else:
+                        print(f"Error fetching data: {response.status}")
+                        self._cache = []
+            except Exception as e:
+                print(f"Exception during fetch: {e}")
+                self._cache = []
+
+    def get_random_weapon(self, weapon_type: Optional[str] = None, sub: Optional[str] = None, special: Optional[str] = None) -> Optional[Dict]:
+        """キャッシュからランダムに1つのブキ情報を返します"""
+        if not self._cache:
+            return None
+        
+        candidates = self._cache
+        if weapon_type:
+            candidates = [w for w in candidates if w.get('type', {}).get('key') == weapon_type]
+        if sub:
+            candidates = [w for w in candidates if w.get('sub', {}).get('key') == sub]
+        if special:
+            candidates = [w for w in candidates if w.get('special', {}).get('key') == special]
+            
+        if not candidates:
+            return None
+        return random.choice(candidates)
+
+    def _get_unique_items(self, field: str) -> List[Dict]:
+        """指定されたフィールドのユニークなアイテムリストを返します"""
+        items = {}
+        for w in self._cache:
+            item = w.get(field)
+            if item and 'key' in item:
+                items[item['key']] = item
+        return list(items.values())
+
+    def get_weapon_types(self) -> List[Dict]:
+        """利用可能なブキの種類リストを返します"""
+        return self._get_unique_items('type')
+
+    def get_sub_weapons(self) -> List[Dict]:
+        """利用可能なサブウェポンのリストを返します"""
+        return self._get_unique_items('sub')
+
+    def get_special_weapons(self) -> List[Dict]:
+        """利用可能なスペシャルウェポンのリストを返します"""
+        return self._get_unique_items('special')
+
+    @staticmethod
+    def get_localized_name(data: Dict, key: str = 'name', lang: str = 'ja_JP') -> str:
+        """多言語対応フィールドから指定言語の文字列を取り出します"""
+        if not data:
+            return "Unknown"
+        return data.get(key, {}).get(lang, "Unknown")
+
+    @staticmethod
+    def get_image_url(key: str) -> str:
+        """stat.inkの画像URLを生成します"""
+        return f"https://stat.ink/images/spl3/weapons/main/{key}.png"
