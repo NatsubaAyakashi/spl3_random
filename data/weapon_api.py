@@ -26,6 +26,17 @@ class WeaponDataManager:
                 print(f"Exception during fetch: {e}")
                 self._cache = []
 
+    async def fetch_image_data(self, url: str) -> Optional[bytes]:
+        """URLから画像データを取得します"""
+        async with aiohttp.ClientSession() as session:
+            try:
+                async with session.get(url) as response:
+                    if response.status == 200:
+                        return await response.read()
+            except:
+                pass
+        return None
+
     def get_random_weapon(self, weapon_type: Optional[str] = None, sub: Optional[str] = None, special: Optional[str] = None) -> Optional[Dict]:
         """キャッシュからランダムに1つのブキ情報を返します"""
         if not self._cache:

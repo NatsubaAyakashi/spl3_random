@@ -3,6 +3,7 @@ from discord.ext import commands
 from discord import app_commands
 from data.weapon_api import WeaponDataManager
 from typing import List
+import io
 
 class Spl3Random(commands.Cog):
     def __init__(self, bot):
@@ -78,7 +79,7 @@ class Spl3Random(commands.Cog):
         embed.add_field(name="種類", value=w_type, inline=True)
         embed.add_field(name="サブ", value=sub_name, inline=True)
         embed.add_field(name="スペシャル", value=sp_name, inline=True)
-        embed.set_thumbnail(url=image_url)
+        embed.set_image(url=image_url)
 
         return embed
 
