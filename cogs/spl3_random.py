@@ -4,6 +4,7 @@ from discord import app_commands
 from data.weapon_api import WeaponDataManager
 from typing import List, Optional
 import io
+import random
 
 class Spl3Random(commands.Cog):
     def __init__(self, bot):
@@ -68,8 +69,9 @@ class Spl3Random(commands.Cog):
         embed_image_url = image_url
 
         if image_data:
-            # ファイル名に特殊文字が含まれると一部の端末で表示されないため、安全な固定名を使用する
-            filename = "weapon.png"
+            # 固定名だとPC版でキャッシュの問題が、特殊文字だとスマホ版で表示の問題が発生するため
+            # ランダムな英数字のファイル名を使用する
+            filename = f"weapon_{random.randint(1000, 9999)}.png"
             file = discord.File(io.BytesIO(image_data), filename=filename)
             embed_image_url = f"attachment://{filename}"
 
