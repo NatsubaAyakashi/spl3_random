@@ -1,5 +1,6 @@
 import aiohttp
 import random
+import urllib.parse
 from typing import List, Dict, Optional
 
 class WeaponDataParams:
@@ -88,6 +89,12 @@ class WeaponDataManager:
         return data.get(key, {}).get(lang, "Unknown")
 
     @staticmethod
-    def get_image_url(key: str) -> str:
-        """stat.inkの画像URLを生成します"""
-        return f"https://stat.ink/images/spl3/weapons/main/{key}.png"
+    def get_image_url(weapon: Dict) -> str:
+        """Inkipediaの画像URLを生成します"""
+        # 英語名を取得し、ファイル名用に整形（空白とスラッシュをアンダースコアに置換）
+        name = weapon.get('name', {}).get('en_US', 'Unknown')
+        filename = name.replace(' ', '_').replace('/', '_')
+        
+        # URLエンコードしてRedirect URLを生成
+        encoded_name = urllib.parse.quote(f"S3_Weapon_Main_{filename}.png")
+        return f"https://splatoonwiki.org/wiki/Special:Redirect/file/{encoded_name}"

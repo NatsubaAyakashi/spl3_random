@@ -60,7 +60,7 @@ class Spl3Random(commands.Cog):
 
         # 画像を取得して添付ファイルとして送信する処理
         key = weapon.get('key')
-        image_url = self.data_manager.get_image_url(key)
+        image_url = self.data_manager.get_image_url(weapon)
         image_data = await self.data_manager.fetch_image_data(image_url)
 
         file = None
@@ -81,7 +81,7 @@ class Spl3Random(commands.Cog):
         w_type = self.data_manager.get_localized_name(weapon.get('type', {}), 'name')
         
         if image_url is None:
-            image_url = self.data_manager.get_image_url(weapon.get('key'))
+            image_url = self.data_manager.get_image_url(weapon)
 
         # Embedの作成
         embed = discord.Embed(
