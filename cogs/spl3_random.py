@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from data.weapon_api import WeaponDataManager
-from typing import List
+from typing import List, Optional
 import io
 
 class Spl3Random(commands.Cog):
@@ -58,16 +58,30 @@ class Spl3Random(commands.Cog):
             await ctx.send("条件に一致するブキが見つかりませんでした。")
             return
 
-        embed = self._create_weapon_embed(weapon)
-        await ctx.send(embed=embed)
+        # 画像を取得して添付ファイルとして送信する処理
+        key = weapon.get('key')
+        image_url = self.data_manager.get_image_url(key)
+        image_data = await self.data_manager.fetch_image_data(image_url)
 
-    def _create_weapon_embed(self, weapon: dict) -> discord.Embed:
+        file = None
+        embed_image_url = image_url
+
+        if image_data:
+            file = discord.File(io.BytesIO(image_data), filename=f"{key}.png")
+            embed_image_url = f"attachment://{key}.png"
+
+        embed = self._create_weapon_embed(weapon, embed_image_url)
+        await ctx.send(embed=embed, file=file)
+
+    def _create_weapon_embed(self, weapon: dict, image_url: Optional[str] = None) -> discord.Embed:
         """ブキ情報からEmbedを作成するヘルパーメソッド"""
         w_name = self.data_manager.get_localized_name(weapon, 'name')
         sub_name = self.data_manager.get_localized_name(weapon.get('sub', {}), 'name')
         sp_name = self.data_manager.get_localized_name(weapon.get('special', {}), 'name')
         w_type = self.data_manager.get_localized_name(weapon.get('type', {}), 'name')
-        image_url = self.data_manager.get_image_url(weapon.get('key'))
+        
+        if image_url is None:
+            image_url = self.data_manager.get_image_url(weapon.get('key'))
 
         # Embedの作成
         embed = discord.Embed(
