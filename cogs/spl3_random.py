@@ -56,7 +56,7 @@ class Spl3Random(commands.Cog):
         weapon = self.data_manager.get_random_weapon(weapon_type, sub, special)
 
         if not weapon:
-            await ctx.send("条件に一致するブキが見つかりませんでした。")
+            await ctx.reply("条件に一致するブキが見つかりませんでした。")
             return
 
         # 画像を取得して添付ファイルとして送信する処理
@@ -76,7 +76,8 @@ class Spl3Random(commands.Cog):
             embed_image_url = f"attachment://{filename}"
 
         embed = self._create_weapon_embed(weapon, embed_image_url)
-        await ctx.send(embed=embed, file=file)
+        embed.set_author(name=f"{ctx.author.display_name} さんの選出結果", icon_url=ctx.author.display_avatar.url)
+        await ctx.reply(embed=embed, file=file)
 
     def _create_weapon_embed(self, weapon: dict, image_url: Optional[str] = None) -> discord.Embed:
         """ブキ情報からEmbedを作成するヘルパーメソッド"""
