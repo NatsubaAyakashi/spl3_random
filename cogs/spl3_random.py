@@ -68,8 +68,10 @@ class Spl3Random(commands.Cog):
         embed_image_url = image_url
 
         if image_data:
-            file = discord.File(io.BytesIO(image_data), filename=f"{key}.png")
-            embed_image_url = f"attachment://{key}.png"
+            # ファイル名に特殊文字が含まれると一部の端末で表示されないため、安全な固定名を使用する
+            filename = "weapon.png"
+            file = discord.File(io.BytesIO(image_data), filename=filename)
+            embed_image_url = f"attachment://{filename}"
 
         embed = self._create_weapon_embed(weapon, embed_image_url)
         await ctx.send(embed=embed, file=file)

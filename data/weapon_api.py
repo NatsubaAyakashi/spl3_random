@@ -17,7 +17,8 @@ class WeaponDataManager:
             return
 
         headers = {"User-Agent": WeaponDataParams.USER_AGENT}
-        async with aiohttp.ClientSession(headers=headers) as session:
+        timeout = aiohttp.ClientTimeout(total=10)
+        async with aiohttp.ClientSession(headers=headers, timeout=timeout) as session:
             try:
                 async with session.get(WeaponDataParams.API_URL) as response:
                     if response.status == 200:
@@ -31,8 +32,12 @@ class WeaponDataManager:
 
     async def fetch_image_data(self, url: str) -> Optional[bytes]:
         """URLから画像データを取得します"""
+        if not url:
+            return None
+
         headers = {"User-Agent": WeaponDataParams.USER_AGENT}
-        async with aiohttp.ClientSession(headers=headers) as session:
+        timeout = aiohttp.ClientTimeout(total=10)
+        async with aiohttp.ClientSession(headers=headers, timeout=timeout) as session:
             try:
                 async with session.get(url) as response:
                     if response.status == 200:
