@@ -94,12 +94,19 @@ class WeaponDataManager:
         return data.get(key, {}).get(lang, "Unknown")
 
     @staticmethod
-    def get_image_url(weapon: Dict) -> str:
+    def get_image_url(weapon: Dict, type_hint: str = "Main") -> str:
         """Inkipediaの画像URLを生成します"""
         # 英語名を取得し、ファイル名用に整形（空白とスラッシュをアンダースコアに置換）
         name = weapon.get('name', {}).get('en_US', 'Unknown')
         filename = name.replace(' ', '_').replace('/', '_')
         
+        # type_hintに基づいてプレフィックスを決定
+        prefix = "S3_Weapon_Main"
+        if type_hint == "Sub":
+            prefix = "S3_Weapon_Sub"
+        elif type_hint == "Special":
+            prefix = "S3_Weapon_Special"
+
         # URLエンコードしてRedirect URLを生成
-        encoded_name = urllib.parse.quote(f"S3_Weapon_Main_{filename}.png")
+        encoded_name = urllib.parse.quote(f"{prefix}_{filename}.png")
         return f"https://splatoonwiki.org/wiki/Special:Redirect/file/{encoded_name}"
